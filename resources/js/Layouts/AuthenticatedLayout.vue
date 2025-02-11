@@ -32,6 +32,15 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
+                                <NavLink :href="route('clients.index')" :active="route().current('clients.index')">
+                                    Clients
+                                </NavLink>
+                                <NavLink v-if="$page.props.auth.isAdmin" :href="route('users.index')" :active="route().current('users.index')">
+                                    Users
+                                </NavLink>
+                                <NavLink :href="route('todo-list.index')" :active="route().current('todo-list.index')">
+                                    Todo List
+                                </NavLink>
                             </div>
                         </div>
 
@@ -115,6 +124,15 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('clients.index')" :active="route().current('clients.index')">
+                            Clients
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="$page.props.auth.isAdmin" :href="route('users.index')" :active="route().current('users.index')">
+                            Users
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('todo-list.index')" :active="route().current('todo-list.index')">
+                            Todo List
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->
@@ -145,6 +163,9 @@ const showingNavigationDropdown = ref(false);
 
             <!-- Page Content -->
             <main>
+                <div v-if="$page.props.flash.message" class="mb-4 rounded-md bg-blue-100 px-3 py-2 text-blue-700">
+                    {{ $page.props.flash.message }}
+                </div>
                 <slot />
             </main>
         </div>
