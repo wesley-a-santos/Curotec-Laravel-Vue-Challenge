@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Client;
 use App\Repositories\ClientRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Service to encapsulate the logic of the Client model.
@@ -90,5 +91,10 @@ class ClientService
     {
         // Finally, delete the client itself.
         $this->clientRepository->delete($id);
+    }
+
+    public function paginate(int $rows): LengthAwarePaginator
+    {
+        return $this->clientRepository->paginate($rows);
     }
 }

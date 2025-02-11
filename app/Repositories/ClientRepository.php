@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Client;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Class ClientRepository
@@ -18,11 +19,16 @@ class ClientRepository extends Repository
     /**
      * Construct a new ClientRepository.
      *
-     * @param  Client  $client
+     * @param Client $client
      */
     public function __construct(Client $client)
     {
         // Initialize the parent class with a Client instance.
         parent::__construct($client);
+    }
+
+    public function paginate(int $rows): LengthAwarePaginator
+    {
+        return $this->model->paginate($rows);
     }
 }
