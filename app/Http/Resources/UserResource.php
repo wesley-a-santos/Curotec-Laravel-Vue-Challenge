@@ -32,7 +32,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'role_id'  => $this->role_id,
-            'role' => RoleResource::make($this->role)
+            'role' => RoleResource::make($this->role),
+            'clients_count' => $this->clients_count
         ];
     }
 }
