@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\RoleResource;
+use App\Models\User;
 use App\Services\UserService;
+use App\Services\RoleService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
-use Symfony\Component\HttpFoundation\Response;
+use Inertia\Response;
 
 /**
  * Class UserController
@@ -18,86 +25,182 @@ class UserController extends Controller
     /**
      * UserController constructor.
      *
-     * @param UserService $userService
+     * @param UserService $userService Service for handling user operations.
+     * @param RoleService $roleService Service for handling role-related operations.
      */
-    public function __construct(private readonly UserService $userService)
+    public function __construct(
+        private readonly UserService $userService,
+        private readonly RoleService $roleService
+    )
     {
-        // Initialize the UserController with a UserService instance.
+        // Initialize the UserController with the necessary service instances.
     }
+
 
     /**
      * Returns a list of all users.
      *
-     * @return \Inertia\Response
+     * @return Response The HTTP response containing the list of users.
      */
-    public function index(): \Inertia\Response
+    public function index(): Response
     {
         // Check if the user has the right permissions to access the users.
         if (!Gate::allows('admin-user')) {
             // If not, abort with a 403 status code.
-            abort(Response::HTTP_FORBIDDEN);
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
         }
 
-        // Get all users from the database.
-        $users = $this->userService->all();
+        // Retrieve a paginated list of users.
+        $users = $this->userService->paginate(10);
 
-        // Return a response with the users.
-        return Inertia::render('Users/Index', [
-            'users' => UserResource::collection($users)
+        // Return the list of users as an Inertia response.
+        return Inertia::render('User/Index', [
+            'users' => UserResource::collection($users),
         ]);
     }
 
 
     /**
-     * Show the form for creating a new user.
+     * Display the user creation form.
      *
-     * @return \Inertia\Response
+     * @return Response The HTTP response for the user creation page.
      */
-    public function create(): \Inertia\Response
+    public function create(): Response
     {
-        // Check if the user has the right permissions to create a user.
+        // Check if the user has the right permissions to access the users.
         if (!Gate::allows('admin-user')) {
             // If not, abort with a 403 status code.
-            abort(Response::HTTP_FORBIDDEN);
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
         }
 
-        // Render the 'Users/Create' view.
-        return Inertia::render('Users/Create');
+        // Retrieve and sort all roles for selection in the user creation form
+        $roles = RoleResource::collection($this->roleService->all()->sortBy('name'));
+
+        // Return the Inertia response to render the user creation page with the list of roles
+        return Inertia::render('User/Create', [
+            'roles' => $roles
+        ]);
     }
 
     /**
-     * Display the specified user.
+     * Creates a new user in the database with the given request data.
      *
-     * @param int $user
-     * @return UserResource
+     * @param StoreUserRequest $request The request containing the user data.
+     * @return RedirectResponse Redirects to the user index page with a success message.
      */
-    public function show(int $user): UserResource
+    public function store(StoreUserRequest $request): RedirectResponse
     {
-        // Check if the user has the right permissions to view the user.
+        // Check if the user has the right permissions to access the users.
         if (!Gate::allows('admin-user')) {
             // If not, abort with a 403 status code.
-            abort(Response::HTTP_FORBIDDEN);
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
         }
 
-        // Return the user from the database as a UserResource.
-        return UserResource::make($this->userService->find($user));
+        // Validate the request data using the provided request class.
+        $requestData = $request->validated();
+
+        // Store the user in the database using the user service.
+        $user = $this->userService->store($requestData);
+
+        // Redirect to the user index page with a success message.
+        return redirect()->route('users.index', $user)->with('message', 'User created successfully.');
     }
 
     /**
-     * Show the form for editing a user.
+     * Show the specified user in the database.
      *
-     * @param int $user
-     * @return \Inertia\Response
+     * @param int $user The ID of the user to show.
+     * @return Response The HTTP response for the user show page.
      */
-    public function edit(int $user): \Inertia\Response
+    public function show(int $user): Response
     {
-        // Check if the user has the right permissions to edit the user.
+// Check if the user has the right permissions to access the users.
         if (!Gate::allows('admin-user')) {
             // If not, abort with a 403 status code.
-            abort(Response::HTTP_FORBIDDEN);
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
         }
 
-        // Render the 'Users/Edit' view.
-        return Inertia::render('Users/Edit');
+        // Retrieve the user from the database using the user service.
+        $userFind = $this->userService->find($user);
+        $userFind->loadCount('clients');
+
+        // Return the Inertia response to render the user show page.
+        return Inertia::render('User/Show',[
+            'user' => UserResource::make($userFind)
+        ]);
     }
+
+
+    /**
+     * Show the form for editing the specified user.
+     *
+     * @param int $user The ID of the user to edit.
+     * @return Response The HTTP response for the user edit page.
+     */
+    public function edit(int $user): Response
+    {
+        // Check if the user has the right permissions to access the users.
+        if (!Gate::allows('admin-user')) {
+            // If not, abort with a 403 status code.
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
+        }
+
+        // Retrieve the user from the database using the user service.
+        $userFind = $this->userService->find($user);
+
+        // Retrieve and sort all roles for selection in the user edit form.
+        $roles = RoleResource::collection($this->roleService->all()->sortBy('name'));
+
+        // Return the Inertia response to render the user edit page with the user and list of roles.
+        return Inertia::render('User/Edit', [
+            'user' => UserResource::make($userFind),
+            'roles' => $roles
+        ]);
+    }
+
+    /**
+     * Updates the specified user in the database.
+     *
+     * @param int $user The ID of the user to update.
+     * @param UpdateUserRequest $request The request containing the new data for the user.
+     * @return RedirectResponse Redirects to the user index page with a success message.
+     */
+    public function update(int $user, UpdateUserRequest $request): RedirectResponse
+    {
+        // Check if the user has the right permissions to access the users.
+        if (!Gate::allows('admin-user')) {
+            // If not, abort with a 403 status code.
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
+        }
+
+        // Update the user in the database using the user service.
+        $this->userService->update($user, $request->validated());
+
+        // Redirect to the user index page with a success message.
+        return redirect()->route('users.index')
+            ->with('message', 'User updated successfully');
+    }
+
+    /**
+     * Deletes the specified user from the database.
+     *
+     * @param int $user The ID of the user to delete.
+     * @return RedirectResponse Redirects to the user index page with a success message.
+     */
+    public function destroy(int $user): RedirectResponse
+    {
+        // Check if the user has the right permissions to access the users.
+        if (!Gate::allows('admin-user')) {
+            // If not, abort with a 403 status code.
+            abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
+        }
+
+        // Delete the user from the database using the user service.
+        $this->userService->delete($user);
+
+        // Redirect to the user index page with a success message.
+        return redirect()->route('users.index')
+            ->with('message', 'User deleted successfully');
+    }
+
 }
