@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\GenderController;
 use App\Http\Controllers\Api\V1\RoleController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,4 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::get('/roles', [RoleController::class, 'index']);
+
+    Route::get('/genders', [GenderController::class, 'index']);
+
+    Route::apiResource('/users', UserController::class);
 });
