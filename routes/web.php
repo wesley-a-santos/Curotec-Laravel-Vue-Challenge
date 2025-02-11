@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
@@ -36,6 +37,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('/users', UserController::class)->except('create', 'update', 'destroy');
+
+    Route::resource('/clients', ClientController::class)->except('create', 'update', 'destroy');
 
 });
 
