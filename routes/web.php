@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TodoController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -36,9 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('/users', UserController::class)->except('create', 'update', 'destroy');
+    Route::resource('/users', UserController::class);
 
-    Route::resource('/clients', ClientController::class)->except('create', 'update', 'destroy');
+    Route::resource('/clients', ClientController::class);
+
+    Route::get('/todo-list', TodoController::class)->name('todo-list.index');
 
 });
 
