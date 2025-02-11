@@ -27,8 +27,16 @@ class ClientRepository extends Repository
         parent::__construct($client);
     }
 
+    /**
+     * Retrieve a paginated list of clients.
+     *
+     * @param int $rows The number of rows to return per page.
+     *
+     * @return LengthAwarePaginator The paginated list of clients.
+     */
     public function paginate(int $rows): LengthAwarePaginator
     {
+        // Delegate the pagination to the model.
         return $this->model->paginate($rows);
     }
 }

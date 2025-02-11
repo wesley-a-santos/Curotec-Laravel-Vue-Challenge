@@ -93,8 +93,15 @@ class ClientService
         $this->clientRepository->delete($id);
     }
 
+    /**
+     * Get a paginated list of clients.
+     *
+     * @param int $rows The number of rows to return per page.
+     * @return LengthAwarePaginator The paginated list of clients.
+     */
     public function paginate(int $rows): LengthAwarePaginator
     {
+        // Delegate the pagination to the clientRepository
         return $this->clientRepository->paginate($rows);
     }
 }
