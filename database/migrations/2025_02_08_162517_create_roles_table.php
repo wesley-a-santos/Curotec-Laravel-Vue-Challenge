@@ -14,6 +14,7 @@ return new class () extends Migration {
             $table->tinyIncrements('id');
             $table->string('name', 10);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
