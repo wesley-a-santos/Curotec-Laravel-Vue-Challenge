@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Class UserRepository
@@ -38,5 +39,18 @@ class UserRepository extends Repository
         // The `first()` method is used to retrieve the first matching record.
         // If no record is found, the `first()` method will return null.
         return $this->model->where('email', '=', $email)->first();
+    }
+
+    /**
+     * Retrieve a paginated list of clients.
+     *
+     * @param int $rows The number of rows to return per page.
+     *
+     * @return LengthAwarePaginator The paginated list of clients.
+     */
+    public function paginate(int $rows): LengthAwarePaginator
+    {
+        // Delegate the pagination to the model.
+        return $this->model->paginate($rows);
     }
 }

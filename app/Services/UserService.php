@@ -3,9 +3,13 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Notifications\UserCreated;
 use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+
 
 /**
  * Service to encapsulate the logic of the User model.
@@ -69,16 +73,29 @@ class UserService
     }
 
 
+
     /**
-     * Store a new user.
+     * Create a new user.
      *
-     * @param array $data The data to create the user with.
-     * @return User The newly created user.
+     * @param array $data The data for the new user.
+     * @return User The new user instance.
      */
     public function store(array $data): User
     {
-        // Create a new model instance and save it to the database.
-        return $this->userRepository->store($data);
+        // Generate a random password for the new user
+        $password = fake()->password(8);
+
+        // Encrypt the password before storing
+        $data['password'] = Hash::make($password);
+
+        // Store the user in the database using the user repository
+        $user = $this->userRepository->store($data);
+
+        // Send a notification with the password to the user
+        Notification::send($user, new UserCreated($user->name, $password));
+
+        // Return the new user instance
+        return $user;
     }
 
 
@@ -106,5 +123,17 @@ class UserService
     {
         // Delegate the delete operation to the userRepository
         $this->userRepository->delete($id);
+    }
+
+    /**
+     * Get a paginated list of clients.
+     *
+     * @param int $rows The number of rows to return per page.
+     * @return LengthAwarePaginator The paginated list of clients.
+     */
+    public function paginate(int $rows): LengthAwarePaginator
+    {
+        // Delegate the pagination to the clientRepository
+        return $this->userRepository->paginate($rows);
     }
 }
