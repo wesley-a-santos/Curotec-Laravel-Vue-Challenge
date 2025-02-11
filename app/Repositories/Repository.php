@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Interfaces\RepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 /**
@@ -57,7 +58,7 @@ class Repository implements RepositoryInterface
         // Check if the model was not found.
         if (!$model) {
             // Throw a ResourceNotFoundException if the model was not found.
-            throw new ResourceNotFoundException('Resource Not Found');
+            abort(Response::HTTP_NOT_FOUND);
         }
 
         // Return the found model instance.
