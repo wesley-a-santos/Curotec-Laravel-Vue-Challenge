@@ -47,9 +47,6 @@ class StoreUserRequest extends FormRequest
             // and be unique in the users table
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
 
-            // The password must be provided, be confirmed, and adhere to the default password rules
-            'password' => ['required', 'confirmed', Password::defaults()],
-
             // The role ID must be provided, be an integer, and exist in the roles table
             'role_id' => ['required', 'int', 'exists:roles,id'],
         ];
