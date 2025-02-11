@@ -36,7 +36,7 @@ const destroy = (id) => {
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-4 space-y-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
 
-                    <PrimaryLink :href="route('clients.create')" class="mt-3">Add CLient</PrimaryLink>
+                    <PrimaryLink :href="route('clients.create')" class="mt-3">Add Client</PrimaryLink>
 
                     <table class="w-full text-left table-auto min-w-max text-slate-800 mt-4">
                         <thead>

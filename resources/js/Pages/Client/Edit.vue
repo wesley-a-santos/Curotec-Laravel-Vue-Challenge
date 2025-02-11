@@ -30,7 +30,7 @@ const form = useForm(props.client)
 
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Create Client</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Edit Client</h2>
         </template>
 
         <div class="py-12">
