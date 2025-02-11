@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
@@ -19,10 +20,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
 
 /**
- * User model class.
- * 
- * This class represents the User entity and is responsible for handling
- * the user's authentication and authorization functionalities.
+ *
  *
  * @property int $id
  * @property string $name
@@ -117,5 +115,10 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role_id === Role::ADMIN;
+    }
+
+    public function clients():HasMany
+    {
+        return $this->hasMany(Client::class);
     }
 }

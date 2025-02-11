@@ -9,9 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
- * Gender model class.
  *
- * This class represents the Gender entity.
  *
  * @property int $id
  * @property string $name
@@ -34,4 +32,9 @@ use Illuminate\Support\Carbon;
 class Gender extends Model
 {
     use SoftDeletes;
+
+    const FEMALE = 1;
+    const MALE = 2;
+    const OTHERS = 3;
+
 }
