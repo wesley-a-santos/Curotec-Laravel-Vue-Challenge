@@ -3,8 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Client;
-use App\Models\ClientEmail;
-use App\Models\ClientSocialMedia;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,10 +15,6 @@ class ClientSeeder extends Seeder
      */
     public function run(): void
     {
-
-        Client::factory()->count(250)
-            ->has(ClientEmail::factory()->count(fake()->randomDigitNotNull()), 'emails')
-            ->has(ClientSocialMedia::factory()->count(fake()->randomDigitNotNull()), 'socialMedias')
-           ->create();
+        Client::factory()->count(250)->create(['user_id' => 1]);
     }
 }
