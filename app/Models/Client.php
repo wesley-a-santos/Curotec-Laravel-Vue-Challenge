@@ -14,9 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
- * Gender model class.
- * 
- * This class represents the Gender entity.
+ *
  *
  * @property int $id
  * @property string $first_name
