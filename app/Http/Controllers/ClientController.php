@@ -11,6 +11,7 @@ use App\Services\ClientService;
 use App\Services\GenderService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -48,8 +49,9 @@ class ClientController extends Controller
         // Check if the user has the required permissions.
         $this->authorize('viewAny', Client::class);
 
-        // Retrieve a paginated list of clients.
-        $clients = $this->clientService->paginate(10);
+        $clients = Cache::tags('clients')->remember('clients-' . request()->query('page', 1), 300, function () {
+            return $this->clientService->paginate(10);
+        });
 
         // Return the list of clients as an Inertia response.
         return Inertia::render('Client/Index', [
@@ -95,10 +97,12 @@ class ClientController extends Controller
         $requestData = $request->validated();
 
         // Store the client in the database using the client service.
-        $client = $this->clientService->store($requestData);
+        $this->clientService->create($requestData);
+
+        Cache::tags('clients')->clear();
 
         // Redirect to the client index page with a success message.
-        return redirect()->route('clients.index', $client)->with('message', 'Client created successfully.');
+        return redirect()->route('clients.index')->with('message', 'Client created successfully.');
     }
 
     /**
@@ -164,12 +168,18 @@ class ClientController extends Controller
         // Authorize the action of updating the client.
         $this->authorize('update', $clientFind);
 
+        $message = 'Client updated successfully';
+
         // Update the client in the database using the client service.
-        $this->clientService->update($client, $request->validated());
+        if (!$this->clientService->update($client, $request->validated())) {
+            $message = 'Client not updated';
+        }
+
+        Cache::tags('clients')->clear();
 
         // Redirect to the client index page with a success message.
         return redirect()->route('clients.index')
-            ->with('message', 'Client updated successfully');
+            ->with('message', $message);
     }
 
     /**
@@ -188,7 +198,9 @@ class ClientController extends Controller
         $this->authorize('delete', $clientFind);
 
         // Delete the client from the database using the client service.
-        $this->clientService->delete($client);
+        $this->clientService->destroy($client);
+
+        Cache::tags('clients')->clear();
 
         // Redirect to the client index page with a success message.
         return redirect()->route('clients.index')

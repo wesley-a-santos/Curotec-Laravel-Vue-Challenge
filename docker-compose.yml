@@ -25,7 +25,7 @@ services:
         depends_on:
             pgsql:
                 condition: service_healthy
-            memcached:
+            redis:
                 condition: service_healthy
             mailpit:
                 condition: service_healthy
@@ -56,18 +56,19 @@ services:
             timeout: 5s
             retries: 3
 
-    memcached:
-        container_name: 'memcached'
-        image: 'memcached:alpine'
+    redis:
+        container_name: redis
+        image: 'redis:alpine'
         ports:
-            - '${FORWARD_MEMCACHED_PORT:-11211}:11211'
+            - '${FORWARD_REDIS_PORT:-6379}:6379'
+        volumes:
+            - 'sail-redis:/data'
         networks:
             - sail
         healthcheck:
-            test: [ "CMD", "echo", "stats", "|", "nc", "localhost", "11211" ]
-            interval: 10s
-            timeout: 5s
+            test: ["CMD", "redis-cli", "ping"]
             retries: 3
+            timeout: 5s
 
     mailpit:
         container_name: mailpit
@@ -85,6 +86,7 @@ services:
             timeout: 5s
             retries: 10
             start_period: 10s
+
 networks:
     sail:
         driver: bridge
@@ -96,3 +98,6 @@ volumes:
     sail-mailpit:
         driver: local
         name: sail-mailpit
+    sail-redis:
+        driver: local
+        name: sail-redis

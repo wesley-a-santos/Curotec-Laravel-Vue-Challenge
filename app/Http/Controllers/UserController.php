@@ -11,6 +11,7 @@ use App\Services\UserService;
 use App\Services\RoleService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -50,8 +51,9 @@ class UserController extends Controller
             abort(\Symfony\Component\HttpFoundation\Response::HTTP_FORBIDDEN);
         }
 
-        // Retrieve a paginated list of users.
-        $users = $this->userService->paginate(10);
+        $users = Cache::tags('users')->remember('users-' . request()->query('page', 1), 300, function () {
+            return $this->userService->paginate(10);
+        });
 
         // Return the list of users as an Inertia response.
         return Inertia::render('User/Index', [
@@ -100,10 +102,13 @@ class UserController extends Controller
         $requestData = $request->validated();
 
         // Store the user in the database using the user service.
-        $user = $this->userService->store($requestData);
+        $this->userService->create($requestData);
+
+        Cache::tags('users')->clear();
+
 
         // Redirect to the user index page with a success message.
-        return redirect()->route('users.index', $user)->with('message', 'User created successfully.');
+        return redirect()->route('users.index')->with('message', 'User created successfully.');
     }
 
     /**
@@ -122,7 +127,6 @@ class UserController extends Controller
 
         // Retrieve the user from the database using the user service.
         $userFind = $this->userService->find($user);
-        $userFind->loadCount('clients');
 
         // Return the Inertia response to render the user show page.
         return Inertia::render('User/Show',[
@@ -176,6 +180,8 @@ class UserController extends Controller
         // Update the user in the database using the user service.
         $this->userService->update($user, $request->validated());
 
+        Cache::tags('users')->clear();
+
         // Redirect to the user index page with a success message.
         return redirect()->route('users.index')
             ->with('message', 'User updated successfully');
@@ -196,7 +202,9 @@ class UserController extends Controller
         }
 
         // Delete the user from the database using the user service.
-        $this->userService->delete($user);
+        $this->userService->destroy($user);
+
+        Cache::tags('users')->clear();
 
         // Redirect to the user index page with a success message.
         return redirect()->route('users.index')
