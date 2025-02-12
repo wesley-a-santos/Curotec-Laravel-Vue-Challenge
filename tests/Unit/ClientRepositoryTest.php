@@ -1,9 +1,11 @@
 <?php
 
+use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Client;
 use App\Models\Gender;
 use App\Models\User;
 use App\Repositories\ClientRepository;
+use Illuminate\Database\Eloquent\Collection;
 use function Pest\Laravel\actingAs;
 
 beforeEach(function () {
@@ -12,28 +14,25 @@ beforeEach(function () {
 });
 
 test('client repository creation', function () {
-    $clientRepository = new ClientRepository(new Client());
-
-    expect($clientRepository)->toBeInstanceOf(ClientRepository::class);
+    $clientRepository = new ClientRepository();
+    expect($clientRepository)->toBeInstanceOf(ClientRepositoryInterface::class);
 });
 
 test('client repository all', function () {
-    $clientRepository = new ClientRepository(new Client());
+    $clientRepository = new ClientRepository();
     $clients = $clientRepository->all();
-
-    expect($clients)->toBeInstanceOf(Illuminate\Database\Eloquent\Collection::class);
+    expect($clients)->toBeInstanceOf(Collection::class);
 });
 
 test('client repository find', function () {
-    $clientRepository = new ClientRepository(new Client());
+    $clientRepository = new ClientRepository();
     $client = Client::factory()->create();
     $foundClient = $clientRepository->find($client->id);
-
     expect($foundClient->id)->toBe($client->id);
 });
 
 test('client repository store', function () {
-    $clientRepository = new ClientRepository(new Client());
+    $clientRepository = new ClientRepository();
     $data = [
         'first_name' => 'John',
         'surname' => 'Doe',
@@ -42,8 +41,7 @@ test('client repository store', function () {
         'birth_date' => '1990-01-01',
         'first_contact_date' => '2020-01-01'
     ];
-    $createdClient = $clientRepository->store($data);
-
+    $createdClient = $clientRepository->create($data);
     expect($createdClient)->toBeInstanceOf(Client::class)
         ->and($createdClient->first_name)->toBe('John')
         ->and($createdClient->surname)->toBe('Doe')
@@ -51,26 +49,23 @@ test('client repository store', function () {
 });
 
 test('client repository update', function () {
-    $clientRepository = new ClientRepository(new Client());
+    $clientRepository = new ClientRepository();
     $client = Client::factory()->create();
     $data = ['first_name' => 'Jane'];
     $updatedClient = $clientRepository->update($client->id, $data);
-
-    expect($updatedClient->id)->toBe($client->id)
-        ->and($updatedClient->first_name)->toBe('Jane');
+    expect($updatedClient)->toBeTrue()
+        ->and($clientRepository->find($client->id)->first_name)->toBe('Jane');
 });
 
 test('client repository delete', function () {
-    $clientRepository = new ClientRepository(new Client());
+    $clientRepository = new ClientRepository();
     $client = Client::factory()->create();
-    $clientRepository->delete($client->id);
-
+    $clientRepository->destroy($client->id);
     expect(Client::find($client->id))->toBeNull();
 });
 
 test('client repository paginate', function () {
-    $clientRepository = new ClientRepository(new Client());
+    $clientRepository = new ClientRepository();
     $clients = $clientRepository->paginate(10);
-
     expect($clients)->toBeInstanceOf(Illuminate\Pagination\LengthAwarePaginator::class);
 });

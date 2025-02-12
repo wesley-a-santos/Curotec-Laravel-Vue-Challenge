@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\RoleRepositoryInterface;
 use App\Models\Role;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Class RoleRepository
@@ -12,18 +14,19 @@ use App\Models\Role;
  * and may include additional role-specific data operations.
  *
  * @package App\Repositories
+ * @author  Wesley Santos <wesley.a.santos@gmail.com>
  */
-class RoleRepository extends Repository
+class RoleRepository  implements RoleRepositoryInterface
 {
-    /**
-     * Construct a new RoleRepository.
-     *
-     * @param  Role  $role
-     */
-    public function __construct(Role $role)
-    {
-        // Initialize the parent class with a Role instance.
 
-        parent::__construct($role);
+    /**
+     * Retrieve all roles from the database.
+     *
+     * @return Collection A collection of Role models.
+     */
+    public function all(): Collection
+    {
+        // Fetch all records from the roles table
+        return Role::all();
     }
 }

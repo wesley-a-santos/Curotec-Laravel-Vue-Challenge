@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\GenderRepositoryInterface;
 use App\Models\Gender;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Class GenderRepository
@@ -12,17 +14,19 @@ use App\Models\Gender;
  * and may include additional gender-specific data operations.
  *
  * @package App\Repositories
+ * @author  Wesley Santos <wesley.a.santos@gmail.com>
  */
-class GenderRepository extends Repository
+class GenderRepository implements GenderRepositoryInterface
 {
+
     /**
-     * Construct a new GenderRepository.
+     * Retrieve all genders from the database.
      *
-     * @param  Gender  $gender
+     * @return Collection A collection of Gender models.
      */
-    public function __construct(Gender $gender)
+    public function all(): Collection
     {
-        // Initialize the parent class with a Gender instance.
-        parent::__construct($gender);
+        // Delegate the retrieval of all genders to the model.
+        return Gender::all();
     }
 }

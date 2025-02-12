@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use App\Interfaces\ClientRepositoryInterface;
 use App\Models\Client;
-use App\Repositories\ClientRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -24,9 +24,9 @@ class ClientService
      *
      * Initialize the service with a ClientRepository instance.
      *
-     * @param ClientRepository $clientRepository
+     * @param ClientRepositoryInterface $clientRepository
      */
-    public function __construct(protected readonly ClientRepository $clientRepository)
+    public function __construct(protected readonly ClientRepositoryInterface $clientRepository)
     {
         // Initialize the service
     }
@@ -51,6 +51,7 @@ class ClientService
     {
         // Delegate the find operation to the clientRepository
         return $this->clientRepository->find($id);
+
     }
 
     /**
@@ -59,10 +60,10 @@ class ClientService
      * @param array $data The data to create the client with.
      * @return Client The newly created client.
      */
-    public function store(array $data): Client
+    public function create(array $data): Client
     {
         // Create a new model instance and save it to the database.
-        return $this->clientRepository->store($data);
+        return $this->clientRepository->create($data);
     }
 
 
@@ -71,9 +72,9 @@ class ClientService
      *
      * @param int $id The ID of the client to update.
      * @param array $data The data to update the client with.
-     * @return Client|null The updated client if it exists; otherwise, null.
+     * @return bool The updated client if it exists; otherwise, null.
      */
-    public function update(int $id, array $data): ?Client
+    public function update(int $id, array $data): bool
     {
         // Find a model instance by its primary key and update it with the given data.
         return $this->clientRepository->update($id, $data);
@@ -87,10 +88,10 @@ class ClientService
      * @param int $id The ID of the client to delete.
      * @return void
      */
-    public function delete(int $id): void
+    public function destroy(int $id): void
     {
         // Finally, delete the client itself.
-        $this->clientRepository->delete($id);
+        $this->clientRepository->destroy($id);
     }
 
     /**
@@ -104,4 +105,6 @@ class ClientService
         // Delegate the pagination to the clientRepository
         return $this->clientRepository->paginate($rows);
     }
+
+
 }

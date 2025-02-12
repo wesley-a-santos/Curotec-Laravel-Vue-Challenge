@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
+use App\Interfaces\UserRepositoryInterface;
 use App\Models\User;
 use App\Notifications\UserCreated;
-use App\Repositories\UserRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
-
 
 /**
  * Service to encapsulate the logic of the User model.
@@ -28,13 +27,12 @@ class UserService
      *
      * Initialize the service with a UserRepository instance.
      *
-     * @param UserRepository $userRepository
+     * @param UserRepositoryInterface $userRepository
      */
-    public function __construct(protected readonly UserRepository $userRepository)
+    public function __construct(protected readonly UserRepositoryInterface $userRepository)
     {
         // Initialize the service
     }
-
 
     /**
      * Get all the users.
@@ -61,26 +59,12 @@ class UserService
 
 
     /**
-     * Find a user by its email address.
-     *
-     * @param string $email The email address of the user.
-     * @return User|null The user instance if found, or null.
-     */
-    public function findByEmail(string $email): ?User
-    {
-        // Delegate the search operation to the userRepository
-        return $this->userRepository->findByEmail($email);
-    }
-
-
-
-    /**
      * Create a new user.
      *
      * @param array $data The data for the new user.
      * @return User The new user instance.
      */
-    public function store(array $data): User
+    public function create(array $data): User
     {
         // Generate a random password for the new user
         $password = fake()->password(8);
@@ -89,7 +73,7 @@ class UserService
         $data['password'] = Hash::make($password);
 
         // Store the user in the database using the user repository
-        $user = $this->userRepository->store($data);
+        $user = $this->userRepository->create($data);
 
         // Send a notification with the password to the user
         Notification::send($user, new UserCreated($user->name, $password));
@@ -104,9 +88,9 @@ class UserService
      *
      * @param int $id The ID of the user to update.
      * @param array $data The data to update the user with.
-     * @return User|null The updated user if it exists; otherwise, null.
+     * @return bool The updated user if it exists; otherwise, null.
      */
-    public function update(int $id, array $data): ?User
+    public function update(int $id, array $data): bool
     {
         // Find a model instance by its primary key and update it with the given data.
         return $this->userRepository->update($id, $data);
@@ -119,10 +103,10 @@ class UserService
      * @param int $id The ID of the user to delete.
      * @return void
      */
-    public function delete(int $id): void
+    public function destroy(int $id): void
     {
         // Delegate the delete operation to the userRepository
-        $this->userRepository->delete($id);
+        $this->userRepository->destroy($id);
     }
 
     /**
@@ -135,5 +119,19 @@ class UserService
     {
         // Delegate the pagination to the clientRepository
         return $this->userRepository->paginate($rows);
+    }
+
+
+
+    /**
+     * Find a user by its email address.
+     *
+     * @param string $email The email address of the user.
+     * @return User|null The user instance if found, or null.
+     */
+    public function findByEmail(string $email): ?User
+    {
+        // Delegate the search operation to the userRepository
+        return $this->userRepository->findByEmail($email);
     }
 }
