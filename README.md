@@ -9,11 +9,14 @@
 
 ## About Laravel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and
+creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in
+many web projects, such as:
 
 - [Simple, fast routing engine](https://laravel.com/docs/routing).
 - [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache)
+  storage.
 - Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
 - Database agnostic [schema migrations](https://laravel.com/docs/migrations).
 - [Robust background job processing](https://laravel.com/docs/queues).
@@ -21,46 +24,115 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
-## Learning Laravel
+## Project Overview
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+This project integrates Docker, Laravel, Vue.js, and PostgreSQL to provide a robust and scalable web application. The
+following sections outline the architecture decisions, deployment steps, environment setup, and specific configuration
+requirements for this project.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Architecture Decisions
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Docker: Used for containerization to ensure consistent development and production environments.
+Laravel: PHP framework for building the backend API.
+Vue.js: JavaScript framework for building the frontend application.
+PostgreSQL: Relational database management system for storing application data.
 
-## Laravel Sponsors
+## Deployment Steps
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Prerequisites
 
-### Premium Partners
+- Docker installed on the system
+- Docker Compose installed on the system
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### Deployment
 
-## Contributing
+1. Clone the repository: **git clone https://github.com/wesley-a-santos/Curotec-Laravel-Vue-Challenge.git**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. Navigate to the project directory: **cd Curotec-Laravel-Vue-Challenge**
 
-## Code of Conduct
+3. Install dependencies:
+    1. **composer install**
+    2. **npm install** or **yarn install**
+    3.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. Build assets:
+    1. **npm run build**
 
-## Security Vulnerabilities
+5. Build the Docker images using [Laravel Sail](https://laravel.com/docs/10.x/sail): **./vendor/bin/sail up -d**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. Initialize and seed the database: **./vendor/bin/sail artisan migrate --seed**
 
-## License
+7. Access the application: **http://localhost**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7. Test user:
+   - Email: **test@example.com**
+   - Password: **password**
+
+#### Optional Steps
+
+1. Seed users for testing (optional): **sail artisan db:seed --class=UserSeeder**
+
+2. Seed clients for the test user (optional): **sail artisan db:seed --class=ClientSeeder**
+
+## Environment Setup
+
+### Docker Compose Configuration
+
+The **docker-compose.yml** file defines the services and their configurations. The following services are defined:
+
+- **laravel.test**: Laravel application container
+- **pgsql**: PostgreSQL database container
+- **redis**: Redis cache container
+- **mailpit**: Mailpit container for email testing
+
+### Environment Variables
+
+The following environment variables are defined in the **.env.example** file:
+
+- **APP_NAME**: Application name
+- **APP_URL**: Application URL
+- **APP_ENV**: Application environment (local, stating, production)
+- **DB_HOST**: PostgreSQL database host
+- **DB_PORT**: PostgreSQL database port
+- **DB_DATABASE**: PostgreSQL database name
+- **DB_USERNAME**: PostgreSQL database username
+- **DB_PASSWORD**: PostgreSQL database password
+- **REDIS_HOST**: Redis cache host
+- **REDIS_PASSWORD**: Redis cache password
+- **CACHE_DRIVER**: Cache driver (redis)
+- **QUEUE_CONNECTION**: Queue connection (redis)
+- **SESSION_DRIVER**: Session driver (redis)
+- **MAIL_MAILER**: Mail driver
+- **MAIL_HOST**: Mail host
+- **MAIL_PORT**: Mail port
+
+Copy the **.env.example** file to **.env** and adjust the values as needed.
+
+## Laravel Configuration
+
+The Laravel application is configured in the **config** directory. The following configurations are defined:
+
+- **app.php**: Application configuration
+- **database.php**: Database configuration
+- **cache.php**: Cache configuration
+- **mail.php**: Mail configuration
+
+Update the configuration files to match your requirements.
+
+## Troubleshooting
+
+Check the Docker logs for errors: docker-compose logs
+Check the Laravel logs for errors: docker-compose exec php php artisan logs
+Check the Vue.js logs for errors: docker-compose exec vue npm run logs
+
+## Conclusion
+
+This project integrates Docker, Laravel, Vue.js, and PostgreSQL to provide a robust and scalable web application. By
+following the deployment steps, environment setup, and specific configuration requirements outlined in this README, you
+should be able to successfully deploy and run the application.
+
+
+
+
+
+
